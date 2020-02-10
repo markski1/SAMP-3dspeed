@@ -1,6 +1,6 @@
 //
 // MRKS 3D Speedometer 0.1 by Markski
-// mrks.cf - Markski#7243 - immarkski@pm.me
+// Website: mrks.cf - Discord: Markski#7243 - E-Mail: immarkski@pm.me
 //
 // Installation
 //
@@ -44,6 +44,8 @@ enum SpeedometerComponents {
 static gSpeedPlayer[MAX_PLAYERS][SpeedometerComponents];
 
 static gTickCount[MAX_PLAYERS];
+
+/* Vehicle names array */
 
 static gVehicleNames[][] = {
    "Landstalker",
@@ -377,5 +379,3 @@ hook OnPlayerStateChange(playerid, newstate, oldstate) {
 }
 
 #endif
-
-/* Vehicle names array */
