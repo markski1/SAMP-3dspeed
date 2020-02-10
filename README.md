@@ -1,4 +1,4 @@
-# SA-MP MRKS 3D Speedometer
+# MRKS 3D Speedometer
 3D Speedometer for SA-MP with a drag-and-drop implementation.
 
 ## Installation
