@@ -1,5 +1,5 @@
 //
-// 3D Speedometer 0.1 by Markski
+// MRKS 3D Speedometer 0.1 by Markski
 // mrks.cf - Markski#7243 - immarkski@pm.me
 //
 // Installation
@@ -11,6 +11,7 @@
 //       - Call 'tdSpeedo_Disconnect(playerid)' at the beggining of OnPlayerDisconnect
 //       - Call 'tdSpeedo_Update(playerid)' at the beggining of OnPlayerUpdate
 //       - Call 'tdSpeedo_Toggle(playerid, 1)' at the beggining of OnPlayerStateChange if `(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)` is true.
+//       - Call 'tdSpeedo_Toggle(playerid, 0)' at the beggining of OnPlayerStateChange as an "else" to the above statement.
 //
 //    TODO:
 //       - Implement "Manual" mode of operation to let scripters implement their own speed measurements.
