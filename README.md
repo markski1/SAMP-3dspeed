@@ -14,10 +14,10 @@ Include the file right after including Streamer, then do the following:
 - Enter the following code at the beggining of OnPlayerStateChange:
 ```
 if (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER) {
-		tdSpeedo_Toggle(playerid, 1);
-	} else {
-		tdSpeedo_Toggle(playerid, 0);
-	}
+	tdSpeedo_Toggle(playerid, 1);
+} else {
+	tdSpeedo_Toggle(playerid, 0);
+}
  ```
 
 ## Custom implementation
