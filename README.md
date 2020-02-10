@@ -20,6 +20,10 @@ Things I'd like to do with this:
 - Add a way for scripters to provide more player-specific customization to their users, such as colours.
 - ???
 
+## Known bugs
+- Unusable in vehicles too wide such as airplanes
+- ???
+
 ## How does it look?
 
 ![](https://i.imgur.com/x7Ak5d5.png)
