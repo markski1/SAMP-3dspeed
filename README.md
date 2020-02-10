@@ -12,6 +12,14 @@ If you don't have y_hooks, then, besides from including the file you must:
 - Call 'tdSpeedo_Toggle(playerid, 1)' at the beggining of OnPlayerStateChange if `(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)` is true.
 - Call 'tdSpeedo_Toggle(playerid, 0)' at the beggining of OnPlayerStateChange as an "else" to the above statement.
 
+## TODO
+
+Things I'd like to do with this:
+- Add a way for scripters to manually feed their own velocity measurements.
+- Add a way for scripters to add their own measurements, such as Fuel.
+- Add a way for scripters to provide more player-specific customization to their users, such as colours.
+- ???
+
 ## How does it look?
 
 ![](https://i.imgur.com/x7Ak5d5.png)
