@@ -275,8 +275,10 @@ tdSpeedo_Connect(playerid) {
 }
 
 tdSpeedo_Disconnect(playerid) {
-	if(gSpeedPlayer[playerid][Name] != INVALID_OBJECT_ID) {
-		DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
+	if(gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
+		#if SHOW_VEHICLE_NAME == 1
+			DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
+		#endif
 		DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
 		DestroyDynamicObject(gSpeedPlayer[playerid][Speed]);
 	}
@@ -341,9 +343,9 @@ tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 		#else
 			format(speedText, 48, "%.0f MPH", velocity);
 		#endif
-		new modelid = GetVehicleModel(vehid);
 		#if SHOW_VEHICLE_NAME == 1
-		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Name], 0, gVehicleNames[modelid-400], OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, true, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
+			new modelid = GetVehicleModel(vehid);
+			SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Name], 0, gVehicleNames[modelid-400], OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, true, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
 		#endif
 		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Status], 0, statusText, OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, false, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
 		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Speed], 0, speedText, OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, false, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
@@ -359,7 +361,7 @@ tdSpeedo_Toggle(playerid, activate) {
 		new vid = GetPlayerVehicleID(playerid);
 		new vmod = GetVehicleModel(vid);
 		#if SHOW_VEHICLE_NAME == 1
-		gSpeedPlayer[playerid][Name] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
+			gSpeedPlayer[playerid][Name] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
 		#endif
 		gSpeedPlayer[playerid][Status] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
 		gSpeedPlayer[playerid][Speed] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
@@ -369,7 +371,7 @@ tdSpeedo_Toggle(playerid, activate) {
 			vX = 1.5;
 		}
 		#if SHOW_VEHICLE_NAME == 1
-		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Name], vid, -vX-1.75, -1.0, 0.0, 0.0, 0.0, 290.0);
+			AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Name], vid, -vX-1.75, -1.0, 0.0, 0.0, 0.0, 290.0);
 		#endif
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Status], vid, -vX-1.75, -1.0, -0.3, 0.0, 0.0, 290.0);
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Speed], vid, -vX-1.75, -1.0, -0.6, 0.0, 0.0, 290.0);
@@ -378,8 +380,8 @@ tdSpeedo_Toggle(playerid, activate) {
 	} else {
 		if (gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
 			#if SHOW_VEHICLE_NAME == 1
-			DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
-			gSpeedPlayer[playerid][Name] = INVALID_OBJECT_ID;
+				DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
+				gSpeedPlayer[playerid][Name] = INVALID_OBJECT_ID;
 			#endif
 			DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
 			gSpeedPlayer[playerid][Status] = INVALID_OBJECT_ID;
