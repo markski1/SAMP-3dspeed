@@ -10,22 +10,30 @@
 
 // System constants, do not touch!
 
-#define SPEED_KMH              0
-#define SPEED_MPH              1
-
 /* Configuration
    - Feel free to these values according to your preferences.
 */
 
-// Speed unit to use, MPH or KMH
-#define SPEEDOMETER_SPEED      SPEED_KMH
+// Speed unit to use, 1 for KMH, 0 for MPH
+#define SPEEDOMETER_UNIT      1
 
-// Enable automatic updating? If disabled, you'll have to automatically set this in your OnPlayerUpdate callback (even if you have y_hooks)
-// And provide it with your own data.
+// ONLY RELEVANT IF USING y_hooks
+// Automatic mode:
+//                  If set to 1, the speedometer will automatically get it's own measures and display them.
+//                  If set to 0, you'll have to feed it your own measurements from your script's OnPlayerUpdate.
+// Setting to 0 only advisable if your script already has a speed measurement system, and/or you want to provide fuel measurements.
 #define AUTOMATIC_MODE         1
 
+// Do we show the vehicle's name?
+#define SHOW_VEHICLE_NAME      1
+
+// Language? 1 english, 0 spanish
+#define SPEEDOMENTER_LANGUAGE  1
+
 enum SpeedometerComponents {
+	#if SHOW_VEHICLE_NAME == 1
 	Name,
+	#endif
 	Status,
 	Speed,
 	Enabled
@@ -36,6 +44,8 @@ static gSpeedPlayer[MAX_PLAYERS][SpeedometerComponents];
 static gTickCount[MAX_PLAYERS];
 
 /* Vehicle names array */
+
+#if SHOW_VEHICLE_NAME == 1
 
 static gVehicleNames[][] = {
 	"Landstalker",
@@ -252,10 +262,12 @@ static gVehicleNames[][] = {
 	"Utility Trailer"
 };
 
+#endif
+
 /* Functions */
 
 tdSpeedo_Connect(playerid) {
-	for (new i = 0; i < _:SpeedometerComponents; i++) {
+	for (new i = 0; i < _:SpeedometerComponents-1; i++) {
 		gSpeedPlayer[playerid][SpeedometerComponents:i] = INVALID_OBJECT_ID;
 	}
 	gSpeedPlayer[playerid][Enabled] = 0;
@@ -288,7 +300,7 @@ tdSpeedo_Disconnect(playerid) {
 */
 tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 	if (!gSpeedPlayer[playerid][Enabled]) return 1;
-	gTickCount[playerid]++
+	gTickCount[playerid]++;
 	if (gTickCount[playerid] < 5) return 1;
 	gTickCount[playerid] = 0;
 	if (!IsPlayerInAnyVehicle(playerid)) {
@@ -300,7 +312,7 @@ tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 		GetVehicleHealth(vehid, vhp);
 		if (speed < -0.5) {
 			GetVehicleVelocity(vehid, pvX, pvY, pvZ);
-			#if SPEEDOMETER_SPEED == SPEED_KMH
+			#if SPEEDOMETER_UNIT == 1
 				velocity = 120.0*(pvX*pvX+pvY*pvY);
 			#else
 				velocity = (120.0*(pvX*pvX+pvY*pvY))*1.6;
@@ -312,17 +324,27 @@ tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 		new speedText[48];
 		new statusText[48];
 		if (fuel > -1) {
-			format(statusText, 48, "Fuel: %i%%, Health: %3.0f%%", fuel, vhp);
+			#if SPEEDOMENTER_LANGUAGE == 1
+				format(statusText, 48, "Fuel: %i%%, Health: %3.0f%%", fuel, vhp);
+			#else
+				format(statusText, 48, "Combustible: %i%%, Vida: %3.0f%%", fuel, vhp);
+			#endif
 		} else {
-			format(statusText, 48, "Health: %3.0f%%", vhp);
+			#if SPEEDOMENTER_LANGUAGE == 1
+				format(statusText, 48, "Health: %3.0f%%", vhp);
+			#else
+				format(statusText, 48, "Vida: %3.0f%%", vhp);
+			#endif
 		}
-		#if SPEEDOMETER_SPEED == SPEED_KMH
+		#if SPEEDOMETER_UNIT == 1
 			format(speedText, 48, "%.0f KMH", velocity);
 		#else
 			format(speedText, 48, "%.0f MPH", velocity);
 		#endif
 		new modelid = GetVehicleModel(vehid);
+		#if SHOW_VEHICLE_NAME == 1
 		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Name], 0, gVehicleNames[modelid-400], OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, true, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
+		#endif
 		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Status], 0, statusText, OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, false, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
 		SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Speed], 0, speedText, OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, false, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
 	}
@@ -336,7 +358,9 @@ tdSpeedo_Toggle(playerid, activate) {
 		}
 		new vid = GetPlayerVehicleID(playerid);
 		new vmod = GetVehicleModel(vid);
+		#if SHOW_VEHICLE_NAME == 1
 		gSpeedPlayer[playerid][Name] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
+		#endif
 		gSpeedPlayer[playerid][Status] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
 		gSpeedPlayer[playerid][Speed] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
 		new Float:vX,Float:vY,Float:vZ;
@@ -344,18 +368,22 @@ tdSpeedo_Toggle(playerid, activate) {
 		if (vX < 1.5) {
 			vX = 1.5;
 		}
+		#if SHOW_VEHICLE_NAME == 1
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Name], vid, -vX-1.75, -1.0, 0.0, 0.0, 0.0, 290.0);
+		#endif
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Status], vid, -vX-1.75, -1.0, -0.3, 0.0, 0.0, 290.0);
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Speed], vid, -vX-1.75, -1.0, -0.6, 0.0, 0.0, 290.0);
 		Streamer_Update(playerid);
 		gSpeedPlayer[playerid][Enabled] = 1;
 	} else {
-		if (gSpeedPlayer[playerid][Name] != INVALID_OBJECT_ID) {
+		if (gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
+			#if SHOW_VEHICLE_NAME == 1
 			DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
-			DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
-			DestroyDynamicObject(gSpeedPlayer[playerid][Speed]);
 			gSpeedPlayer[playerid][Name] = INVALID_OBJECT_ID;
+			#endif
+			DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
 			gSpeedPlayer[playerid][Status] = INVALID_OBJECT_ID;
+			DestroyDynamicObject(gSpeedPlayer[playerid][Speed]);
 			gSpeedPlayer[playerid][Speed] = INVALID_OBJECT_ID;
 		}
 		gSpeedPlayer[playerid][Enabled] = 0;
