@@ -1,4 +1,4 @@
-# MRKS 3D Speedometer
+# mrks_3dspeed
 3D Speedometer for SA-MP with a drag-and-drop implementation.
 
 Instrucciones en español pronto.
