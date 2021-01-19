@@ -3,10 +3,12 @@
 
 ## Instalacion
 
-Para instalar esta libreria, simplemente descarga [3dspeed.inc](3dspeed.inc) e incluyelo en tu gamemode
+Para instalar esta libreria, simplemente descarga [3dspeed.inc](3dspeed.inc) e incluyelo en tu gamemode.
+
+El tacometro aparecera y desaparecera automaticamente cuando los jugadores entren y salgan de vehiculos.
 
 ### Configuración
-Las siguientes lineas se agregan arriba de la linea `#include`.
+Las siguientes lineas se agregan arriba de la linea `#include <3dspeed>`.
 - `#define TDSPEED_SPANISH` si deseas que el tacometro este en español.
 - `#define TDSPEED_MPH` si deseas que el tacometro diga MPH en lugar de KMH.
 - `#define TDSPEED_HIDENAME` si deseas que el tacometro no incluya el nombre del vehiculo.
