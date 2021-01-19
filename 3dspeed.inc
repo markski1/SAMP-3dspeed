@@ -1,37 +1,27 @@
-//
-// MRKS 3D Speedometer 0.2 by Markski
-// Website: mrks.cf - Discord: Markski#7243 - E-Mail: immarkski@pm.me
-//
-//
-//       For install instructions, TODO, and to contribute to this code, please visit:
-//                    https://github.com/markski1/MRKS-3D-Speedometer/
-//
-//
-
-// System constants, do not touch!
-
-/* Configuration
-   - Feel free to these values according to your preferences.
+/*
+	3dspeed 1.0
+	mrks.cf | github.com/markski1
+	Thanks to:
+		open.mp/docs contributors
+		SACNR
 */
 
-// Speed unit to use, 1 for KMH, 0 for MPH
-#define SPEEDOMETER_UNIT      1
+#if defined tdspeed_included
+	#endinput
+#endif
 
-// ONLY RELEVANT IF USING y_hooks
-// Automatic mode:
-//                  If set to 1, the speedometer will automatically get it's own measures and display them.
-//                  If set to 0, you'll have to feed it your own measurements from your script's OnPlayerUpdate.
-// Setting to 0 only advisable if your script already has a speed measurement system, and/or you want to provide fuel measurements.
-#define AUTOMATIC_MODE         1
+#define tdspeed_included
 
-// Do we show the vehicle's name?
-#define SHOW_VEHICLE_NAME      1
+/*
+	Configuration constants, include before this file.
 
-// Language? 1 english, 0 spanish
-#define SPEEDOMENTER_LANGUAGE  1
+	TDSPEED_MPH to say MPH instead of KMH
+	TDSPEED_SPANISH to have spanish text.
+	TDSPEED_HIDENAME to not show vehicle name.
+*/
 
 enum SpeedometerComponents {
-	#if SHOW_VEHICLE_NAME == 1
+	#if !defined TDSPEED_HIDENAME
 	Name,
 	#endif
 	Status,
@@ -45,7 +35,7 @@ static gTickCount[MAX_PLAYERS];
 
 /* Vehicle names array */
 
-#if SHOW_VEHICLE_NAME == 1
+#if !defined TDSPEED_HIDENAME
 
 static gVehicleNames[][] = {
 	"Landstalker",
@@ -266,41 +256,7 @@ static gVehicleNames[][] = {
 
 /* Functions */
 
-tdSpeedo_Connect(playerid) {
-	for (new i = 0; i < _:SpeedometerComponents-1; i++) {
-		gSpeedPlayer[playerid][SpeedometerComponents:i] = INVALID_OBJECT_ID;
-	}
-	gSpeedPlayer[playerid][Enabled] = 0;
-	gTickCount[playerid] = 0;
-}
-
-tdSpeedo_Disconnect(playerid) {
-	if(gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
-		#if SHOW_VEHICLE_NAME == 1
-			DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
-		#endif
-		DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
-		DestroyDynamicObject(gSpeedPlayer[playerid][Speed]);
-	}
-}
-
-/*
-	Updating function
-
-		This function updates a player's speedometer if they are in a vehicle.
-
-		Automatic usage:
-			- If you have y_hooks, then it will automatically work.
-			- If you don't have y_hooks, simply put the function in your script as detailed in "Installation" at the repo readme.
-
-		Manual usage:
-			- For manual usage of this function, you will need to disable AUTOMATIC_MODE at the top of this script.
-			- Then, feed it information from your OnPlayerUpdate in this form (for example):
-				tdSpeedo_Update(playerid, Speed[playerid], Fuel[playerid]);
-			- If you want to provide a Fuel value but let the include measure speed by itself, put "-1.0" where speed goes.
-			- If you want to provide a custom Speed measurement but not add anything regarding fuel, simply don't provide that parameter.
-*/
-tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
+stock Update3DSpeedometer(playerid, speed, fuel=-1) {
 	if (!gSpeedPlayer[playerid][Enabled]) return 1;
 	gTickCount[playerid]++;
 	if (gTickCount[playerid] < 5) return 1;
@@ -310,40 +266,30 @@ tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 		return 1;
 	} else if (!IsPlayerNPC(playerid)) {
 		new vehid = GetPlayerVehicleID(playerid);
-		new Float:pvX, Float:pvY, Float:pvZ, Float:vhp, Float:velocity;
+		new Float:pvX, Float:pvY, Float:pvZ, Float:vhp;
 		GetVehicleHealth(vehid, vhp);
-		if (speed < -0.5) {
-			GetVehicleVelocity(vehid, pvX, pvY, pvZ);
-			#if SPEEDOMETER_UNIT == 1
-				velocity = 120.0*(pvX*pvX+pvY*pvY);
-			#else
-				velocity = (120.0*(pvX*pvX+pvY*pvY))*1.6;
-			#endif
-		} else {
-			velocity = speed;
-		}
 		vhp = (((vhp - 250.0) / 750.0) * 100.0);
 		new speedText[48];
 		new statusText[48];
 		if (fuel > -1) {
-			#if SPEEDOMENTER_LANGUAGE == 1
+			#if !defined TDSPEED_SPANISH
 				format(statusText, 48, "Fuel: %i%%, Health: %3.0f%%", fuel, vhp);
 			#else
 				format(statusText, 48, "Combustible: %i%%, Vida: %3.0f%%", fuel, vhp);
 			#endif
 		} else {
-			#if SPEEDOMENTER_LANGUAGE == 1
+			#if !defined TDSPEED_SPANISH
 				format(statusText, 48, "Health: %3.0f%%", vhp);
 			#else
 				format(statusText, 48, "Vida: %3.0f%%", vhp);
 			#endif
 		}
-		#if SPEEDOMETER_UNIT == 1
-			format(speedText, 48, "%.0f KMH", velocity);
+		#if !defined TDSPEED_MPH
+			format(speedText, 48, "%i KMH", speed);
 		#else
-			format(speedText, 48, "%.0f MPH", velocity);
+			format(speedText, 48, "%i MPH", speed);
 		#endif
-		#if SHOW_VEHICLE_NAME == 1
+		#if !defined TDSPEED_HIDENAME
 			new modelid = GetVehicleModel(vehid);
 			SetDynamicObjectMaterialText(gSpeedPlayer[playerid][Name], 0, gVehicleNames[modelid-400], OBJECT_MATERIAL_SIZE_512x256, "Arial", 30, true, 0xFFFFFFFF, 0, OBJECT_MATERIAL_TEXT_ALIGN_RIGHT);
 		#endif
@@ -353,14 +299,14 @@ tdSpeedo_Update(playerid, Float:speed=-1.0, fuel=-1) {
 	return 1;
 }
 
-tdSpeedo_Toggle(playerid, activate) {
+static tdSpeedo_Toggle(playerid, activate) {
 	if (activate) {
 		if (gSpeedPlayer[playerid][Enabled]) {
 			return 1;
 		}
 		new vid = GetPlayerVehicleID(playerid);
 		new vmod = GetVehicleModel(vid);
-		#if SHOW_VEHICLE_NAME == 1
+		#if !defined TDSPEED_HIDENAME
 			gSpeedPlayer[playerid][Name] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
 		#endif
 		gSpeedPlayer[playerid][Status] = CreateDynamicObject(19482, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1, -1, playerid, 200.0);
@@ -370,7 +316,7 @@ tdSpeedo_Toggle(playerid, activate) {
 		if (vX < 1.5) {
 			vX = 1.5;
 		}
-		#if SHOW_VEHICLE_NAME == 1
+		#if !defined TDSPEED_HIDENAME
 			AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Name], vid, -vX-1.75, -1.0, 0.0, 0.0, 0.0, 290.0);
 		#endif
 		AttachDynamicObjectToVehicle(gSpeedPlayer[playerid][Status], vid, -vX-1.75, -1.0, -0.3, 0.0, 0.0, 290.0);
@@ -379,7 +325,7 @@ tdSpeedo_Toggle(playerid, activate) {
 		gSpeedPlayer[playerid][Enabled] = 1;
 	} else {
 		if (gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
-			#if SHOW_VEHICLE_NAME == 1
+			#if !defined TDSPEED_HIDENAME
 				DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
 				gSpeedPlayer[playerid][Name] = INVALID_OBJECT_ID;
 			#endif
@@ -394,37 +340,81 @@ tdSpeedo_Toggle(playerid, activate) {
 }
 
 
-/* Hooks
-   Automatically hook onto the gamemode, if applicable.
-
+/*
+   Hooks
 */
 
-#if defined _INC_y_hooks
+public OnPlayerConnect(playerid) {
+	for (new i = 0; i < _:SpeedometerComponents-1; i++) {
+		gSpeedPlayer[playerid][SpeedometerComponents:i] = INVALID_OBJECT_ID;
+	}
+	gSpeedPlayer[playerid][Enabled] = 0;
+	gTickCount[playerid] = 0;
 
-hook OnPlayerConnect(playerid) {
-	tdSpeedo_Connect(playerid);
-	return 1;
+	#if defined tf_OnPlayerConnect
+		return tds_OnPlayerConnect(playerid);
+	#endif
 }
 
 
-hook OnPlayerDisconnect(playerid, reason) {
-	tdSpeedo_Disconnect(playerid);
-	return 1;
-}
-#if AUTOMATIC_MODE == 1
-hook OnPlayerUpdate(playerid) {
-	tdSpeedo_Update(playerid);
-	return 1;
-}
-#endif
+public OnPlayerDisconnect(playerid, reason) {
+	if(gSpeedPlayer[playerid][Status] != INVALID_OBJECT_ID) {
+		#if !defined TDSPEED_HIDENAME
+			DestroyDynamicObject(gSpeedPlayer[playerid][Name]);
+		#endif
+		DestroyDynamicObject(gSpeedPlayer[playerid][Status]);
+		DestroyDynamicObject(gSpeedPlayer[playerid][Speed]);
+	}
 
-hook OnPlayerStateChange(playerid, newstate, oldstate) {
+	#if defined tf_OnPlayerDisconnect
+		return tds_OnPlayerDisconnect(playerid);
+	#endif
+}
+
+public OnPlayerStateChange(playerid, newstate, oldstate) {
 	if (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER) {
 		tdSpeedo_Toggle(playerid, 1);
 	} else {
 		tdSpeedo_Toggle(playerid, 0);
 	}
-	return 1;
+
+	#if defined tf_OnPlayerStateChange
+		return tds_OnPlayerStateChange(playerid);
+	#endif
 }
 
+#if defined _ALS_OnPlayerConnect
+	#undef OnPlayerConnect
+#else
+	#define _ALS_OnPlayerConnect
+#endif
+
+#define OnPlayerConnect tds_OnPlayerConnect
+
+#if defined tds_OnPlayerConnect
+	forward tds_OnPlayerConnect();
+#endif
+
+#if defined _ALS_OnPlayerDisconnect
+	#undef OnPlayerDisconnect
+#else
+	#define _ALS_OnPlayerDisconnect
+#endif
+
+#define OnPlayerDisconnect tds_OnPlayerDisconnect
+
+#if defined tds_OnPlayerDisconnect
+	forward tds_OnPlayerDisconnect();
+#endif
+
+#if defined _ALS_OnPlayerStateChange
+	#undef OnPlayerStateChange
+#else
+	#define _ALS_OnPlayerStateChange
+#endif
+
+#define OnPlayerStateChange tds_OnPlayerStateChange
+
+#if defined tds_OnPlayerStateChange
+	forward tds_OnPlayerStateChange();
 #endif
