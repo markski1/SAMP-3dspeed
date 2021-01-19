@@ -1,4 +1,4 @@
-# mrks_3dspeed
+# SAMP-3dspeed
 3D Speedometer for SA-MP with a drag-and-drop implementation.
 
 <br>
